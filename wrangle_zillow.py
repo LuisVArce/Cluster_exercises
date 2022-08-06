@@ -100,6 +100,57 @@ def wrangle_zillow():
     print('Saving to .csv')
     return df
 
+def split_data(df):
+    '''
+    Takes in a df
+    Returns train, validate, and test DataFrames
+    '''
+    # Create train_validate and test datasets
+    train_validate, test = train_test_split(df, 
+                                        test_size=.2, 
+                                        random_state=42)
+    # Create train and validate datsets
+    train, validate = train_test_split(train_validate, 
+                                   test_size=.3, 
+                                   random_state=42)
+
+    # Take a look at your split datasets
+
+    print(f'train <> {train.shape}')
+    print(f'validate <> {validate.shape}')
+    print(f'test <> {test.shape}')
+    return train, validate, test
+
+
+
+def scale_data(train, validate, test, return_scaler=False):
+    '''
+    This function takes in train, validate, and test dataframes and returns a scaled copy of each.
+    If return_scaler=True, the scaler object will be returned as well
+    '''
+    
+    scaler = MinMaxScaler()
+    
+    num_columns = ['bedroomcnt', 'bathroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxamount', 'roomcnt', 'structuretaxvaluedollarcnt', 'taxvaluedollarcnt', 'landtaxvaluedollarcnt']
+    
+    train_scaled = train.copy()
+    validate_scaled = validate.copy()
+    test_scaled = test.copy()
+    
+    scaler.fit(train[num_columns])
+    
+    train_scaled[num_columns] = scaler.transform(train[num_columns])
+    validate_scaled[num_columns] = scaler.transform(validate[num_columns])
+    test_scaled[num_columns] = scaler.transform(test[num_columns])
+    
+    print(f'train_scaled <> {train_scaled.shape}')
+    print(f'validate_scaled <> {validate_scaled.shape}')
+    print(f'test_scaled <> {test_scaled.shape}')
+    
+    if return_scaler:
+        return scaler, train_scaled, validate_scaled, test_scaled
+    else:
+        return train_scaled, validate_scaled, test_scaled
 
 
 
